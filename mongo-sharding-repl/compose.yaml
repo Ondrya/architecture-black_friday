@@ -29,7 +29,7 @@ services:
 # region SHARD 1 - primary будет выбран автоматически
   shard1_1:
     image: mongo:latest
-    container_name: shard1
+    container_name: shard1_1
     restart: always
     ports:
       - "27021:27021"
@@ -53,7 +53,7 @@ services:
 
   shard1_2:
     image: mongo:latest
-    container_name: shard1
+    container_name: shard1_2
     restart: always
     ports:
       - "27022:27022"
@@ -77,7 +77,7 @@ services:
 
   shard1_3:
     image: mongo:latest
-    container_name: shard1
+    container_name: shard1_3
     restart: always
     ports:
       - "27023:27023"
@@ -103,7 +103,7 @@ services:
 # region SHARD 2 - primary будет выбран автоматически
   shard2_1:
     image: mongo:latest
-    container_name: shard2
+    container_name: shard2_1
     restart: always
     ports:
       - "27031:27031"
@@ -127,7 +127,7 @@ services:
 
   shard2_2:
     image: mongo:latest
-    container_name: shard2
+    container_name: shard2_2
     restart: always
     ports:
       - "27032:27032"
@@ -151,7 +151,7 @@ services:
 
   shard2_3:
     image: mongo:latest
-    container_name: shard2
+    container_name: shard2_3
     restart: always
     ports:
       - "27033:27033"

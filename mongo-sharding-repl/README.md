@@ -2,7 +2,7 @@
 
 ## 1. Запустите приложение
 
-Убедиться, что находишься в каталоге `mongo-sharding`
+Убедиться, что находишься в каталоге `mongo-sharding-repl`
 
 ```shell
 docker compose up -d
@@ -10,7 +10,7 @@ docker compose up -d
 
 ## 2. Инициализация
 
-Инициализируем бд: настраиваем replica set для config-сервера, шардов и подключаем их к маршрутизатору mongos
+Инициализируем бд: настраиваем replica set для config-сервера, шардов **И РЕПЛИК** и подключаем их к маршрутизатору mongos
 
 ```shell
 bash scripts/mongo-init.sh
@@ -18,36 +18,13 @@ bash scripts/mongo-init.sh
 
 ## 3. Опрашиваем данные
 
-1. Сколько всего записей в коллекции `helloDoc`.
+Для запуска проверки выполнить скрипт.
+
+> Примечание: перечень реплик зашит в скрипт, чтобы динамически обнаружить все реплики (контейнеры MongoDB, участвующие в шардинге), не зная их имён и портов заранее — нужно запрашивать информацию у самого кластера MongoDB.
+> Так как это явно нге указано в задаче, то на этом этапе не делал.
 
 ```shell
-docker compose exec -T mongos_router mongosh --port 27020 --quiet <<EOF
-use somedb
-db.helloDoc.countDocuments()
-EOF
-```
-
-2. Из них на первом шарде.
-
-```shell
-docker compose exec -T shard1 mongosh --port 27018 --quiet <<EOF
-use somedb
-db.helloDoc.countDocuments()
-EOF
-```
-
-3. Из них на втором шарде.
-
-```shell
-docker compose exec -T shard2 mongosh --port 27019 --quiet <<EOF
-use somedb
-db.helloDoc.countDocuments()
-EOF
-```
-
-4. Получение количества записей через API
-```shell
-curl http://localhost:8080/helloDoc/count
+bash scripts/check.sh
 ```
 
 ---

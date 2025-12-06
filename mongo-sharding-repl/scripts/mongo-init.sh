@@ -26,13 +26,15 @@ exit();
 EOF
 echo -e "${GREEN}[OK]${NC} Config server replica set инициализирован."
 
-echo -e "${BLUE}[INFO]${NC} Инициализация replica set для шарда shard1 (порт 27018)..."
-docker compose exec -T shard1 mongosh --port 27018 <<EOF
+echo -e "${BLUE}[INFO]${NC} Инициализация replica set для шарда shard1 (порты 27021 - 27023)..."
+docker compose exec -T shard1_1 mongosh --port 27021 <<EOF
 rs.initiate(
     {
       _id : "shard1",
       members: [
-        { _id : 0, host : "shard1:27018" },
+        { _id : 0, host : "shard1_1:27021" },
+        { _id : 1, host : "shard1_2:27022" },
+        { _id : 2, host : "shard1_3:27023" }
       ]
     }
 );
@@ -40,13 +42,15 @@ exit();
 EOF
 echo -e "${GREEN}[OK]${NC} Shard1 replica set инициализирован."
 
-echo -e "${BLUE}[INFO]${NC} Инициализация replica set для шарда shard2 (порт 27019)..."
-docker compose exec -T shard2 mongosh --port 27019 <<EOF
+echo -e "${BLUE}[INFO]${NC} Инициализация replica set для шарда shard2 (порты 27031 - 27033)..."
+docker compose exec -T shard2_1 mongosh --port 27031 <<EOF
 rs.initiate(
     {
       _id : "shard2",
       members: [
-        { _id : 0, host : "shard2:27019" },
+        { _id : 0, host : "shard2_1:27031" },
+        { _id : 1, host : "shard2_2:27032" },
+        { _id : 2, host : "shard2_3:27033" }
       ]
     }
 );
@@ -63,8 +67,8 @@ echo -e "${GREEN}[OK]${NC} mongos_router доступен."
 
 echo -e "${BLUE}[INFO]${NC} Подключение шардов (shard1 и shard2) к кластеру через mongos..."
 docker compose exec -T mongos_router mongosh --port 27020 <<EOF
-sh.addShard( "shard1/shard1:27018");
-sh.addShard( "shard2/shard2:27019");
+sh.addShard( "shard1/shard1_1:27021");
+sh.addShard( "shard2/shard2_1:27031");
 EOF
 echo -e "${GREEN}[OK]${NC} Шарды успешно добавлены."
 
@@ -75,11 +79,19 @@ sh.shardCollection("somedb.helloDoc", { "name" : "hashed" } );
 EOF
 echo -e "${GREEN}[OK]${NC} Шардинг включён для somedb.helloDoc."
 
-echo -e "${BLUE}[INFO]${NC} Вставка 1000 тестовых документов в коллекцию somedb.helloDoc..."
+# === Параметр: количество документов ===
+DOC_COUNT=${DOC_COUNT:-6000}  # можно переопределить: DOC_COUNT=10000 ./insert.sh
+
+echo -e "${BLUE}[INFO]${NC} Вставка ${DOC_COUNT} тестовых документов в коллекцию somedb.helloDoc..."
 docker compose exec -T mongos_router mongosh --port 27020 <<EOF
-use somedb
-for(var i = 0; i < 1000; i++) db.helloDoc.insertOne({age:i, name:"ly"+i})
+use somedb;
+print("Вставка ${DOC_COUNT} документов...");
+for (let i = 0; i < ${DOC_COUNT}; i++) {
+  db.helloDoc.insertOne({ age: i, name: "ly" + i });
+}
+print("✅ Завершено.");
 EOF
-echo -e "${GREEN}[OK]${NC} 1000 документов успешно вставлены."
+
+echo -e "${GREEN}[OK]${NC} ${DOC_COUNT} документов успешно вставлены."
 
 echo -e "${GREEN}[INFO]${NC} Настройка шардированного кластера завершена."
