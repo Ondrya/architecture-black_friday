@@ -80,7 +80,7 @@ EOF
 echo -e "${GREEN}[OK]${NC} Шардинг включён для somedb.helloDoc."
 
 # === Параметр: количество документов ===
-DOC_COUNT=${DOC_COUNT:-1500}  # можно переопределить: DOC_COUNT=10000 ./insert.sh
+DOC_COUNT=${DOC_COUNT:-1500}  
 
 echo -e "${BLUE}[INFO]${NC} Вставка ${DOC_COUNT} тестовых документов в коллекцию somedb.helloDoc..."
 docker compose exec -T mongos_router mongosh --port 27020 <<EOF
