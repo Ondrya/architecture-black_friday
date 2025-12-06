@@ -37,6 +37,10 @@ bash scripts/check.sh
 bash scripts/benchmark-api.sh
 ```
 
+## 5. Приложение открывается в браузере и отображает JSON с информацией о MongoDB.
+[ссылка на приложение](http://localhost:8080/)
+
+
 ---
 
 ## На случай перезапуска
